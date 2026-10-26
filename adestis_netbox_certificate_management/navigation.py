@@ -6,9 +6,9 @@ _certificate = [
     PluginMenuItem(
         link='plugins:adestis_netbox_certificate_management:certificate_list',
         link_text='Certificate',
-        permissions=["adestis_netbox_certificate_management.certificate_list"],
+        permissions=["adestis_netbox_certificate_management.view_certificate"],
         buttons=(
-            PluginMenuButton('plugins:adestis_netbox_certificate_management:certificate_add', 'Add', 'mdi mdi-plus-thick', ButtonColorChoices.GREEN, ["netbox_certificate.certificate_add"]),
+            PluginMenuButton('plugins:adestis_netbox_certificate_management:certificate_add', 'Add', 'mdi mdi-plus-thick', ButtonColorChoices.GREEN, ["adestis_netbox_certificate_management.add_certificate"]),
         )
     ),    
 ]
