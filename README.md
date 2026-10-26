@@ -41,3 +41,6 @@ The plugin is developed and tested using the following base image:
 ```dockerfile
 ARG FROM_TAG=v4.3.7-3.3.0  # NetBox v4.3.7
 ```
+
+NetBox 4.4 and later use NetBox's object action API for list actions. Earlier
+NetBox releases continue to use the compatible legacy action configuration.
