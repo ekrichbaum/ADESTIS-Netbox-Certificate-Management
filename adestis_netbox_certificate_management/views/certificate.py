@@ -7,6 +7,22 @@ from netbox.views import generic
 from django.utils.translation import gettext as _
 from adestis_netbox_certificate_management.models import *
 from adestis_netbox_certificate_management.tables import *
+from adestis_netbox_certificate_management.views.actions import (
+    AddObject,
+    BulkDelete,
+    BulkEdit,
+    BulkExport,
+    BulkImport,
+    BulkRemoveApplication,
+    BulkRemoveCertificate,
+    BulkRemoveCluster,
+    BulkRemoveClusterGroup,
+    BulkRemoveContact,
+    BulkRemoveDevice,
+    BulkRemoveTenant,
+    BulkRemoveVirtualMachine,
+    actions,
+)
 from adestis_netbox_applications.models import InstalledApplication
 from adestis_netbox_applications.tables import InstalledApplicationTable, InstalledApplicationTableTab
 from utilities.views import GetRelatedModelsMixin, ViewTab, register_model_view
@@ -24,7 +40,6 @@ from dcim.models import *
 from dcim.forms import *
 from dcim.tables import *
 from dcim.filtersets import *
-from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from virtualization.models import *
 from virtualization.forms import VirtualMachineForm, ClusterForm, ClusterGroupForm
 from virtualization.tables import VirtualMachineTable, ClusterTable, ClusterGroupTable
@@ -104,6 +119,7 @@ class CertificateListView(generic.ObjectListView):
     filterset = CertificateFilterSet
     filterset_form = CertificateFilterForm
     template_name = 'adestis_netbox_certificate_management/cert_import.html'
+    actions = actions(AddObject, BulkExport, BulkImport, BulkEdit, BulkDelete)
     
 
 class CertificateEditView(generic.ObjectEditView):
@@ -250,13 +266,7 @@ class CertificateAffectedInstalledApplicationView(generic.ObjectChildrenView):
     child_model= InstalledApplication
     table = InstalledApplicationTableTab
     template_name = "adestis_netbox_certificate_management/application.html"
-    actions = {
-        'add': {'add'},
-        'export': {'view'},
-        'bulk_import': {'add'},
-        'bulk_edit': {'change'},
-        'bulk_remove_application': {'change'},
-    }
+    actions = actions(AddObject, BulkExport, BulkImport, BulkEdit, BulkRemoveApplication)
 
     tab = ViewTab(
         label=_('Applications'),
@@ -355,12 +365,7 @@ class CertificateAffectedSuccessorCertificateView(generic.ObjectChildrenView):
     queryset = Certificate.objects.all()
     child_model= Certificate
     table = CertificateTable
-    actions = {
-        'add': {'add'},
-        'export': {'view'},
-        'bulk_import': {'add'},
-        'bulk_edit': {'change'},
-    }
+    actions = actions(AddObject, BulkExport, BulkImport, BulkEdit)
 
     tab = ViewTab(
         label=_('Successor Certificates'),
@@ -384,13 +389,7 @@ class CertificateAffectedDeviceView(generic.ObjectChildrenView):
         badge=lambda obj: obj.device.count(),
         weight=600
     )
-    actions = {
-        'add': {'add'},
-        'export': {'view'},
-        'bulk_import': {'add'},
-        'bulk_edit': {'change'},
-        'bulk_remove_device': {'change'},
-    }
+    actions = actions(AddObject, BulkExport, BulkImport, BulkEdit, BulkRemoveDevice)
     
     def get_children(self, request, parent):
         return Device.objects.restrict(request.user, 'view').filter(certificate=parent)
@@ -401,13 +400,7 @@ class DeviceAffectedCertificateView(generic.ObjectChildrenView):
     child_model= Certificate
     table = CertificateTable
     template_name = "adestis_netbox_certificate_management/certificate_device.html"
-    actions = {
-        'add': {'add'},
-        'export': {'view'},
-        'bulk_import': {'add'},
-        'bulk_edit': {'change'},
-        'bulk_remove_certificate': {'change'},
-    }
+    actions = actions(AddObject, BulkExport, BulkImport, BulkEdit, BulkRemoveCertificate)
 
     tab = ViewTab(
         label=_('Certificates'),
@@ -507,13 +500,7 @@ class CertificateAffectedClusterView(generic.ObjectChildrenView):
     child_model= Cluster
     table = ClusterTableCertificate
     template_name = "adestis_netbox_certificate_management/cluster.html"
-    actions = {
-        'add': {'add'},
-        'export': {'view'},
-        'bulk_import': {'add'},
-        'bulk_edit': {'change'},
-        'bulk_remove_cluster': {'change'},
-    }
+    actions = actions(AddObject, BulkExport, BulkImport, BulkEdit, BulkRemoveCluster)
 
     tab = ViewTab(
         label=_('Clusters'),
@@ -530,13 +517,7 @@ class ClusterAffectedCertificateView(generic.ObjectChildrenView):
     child_model= Certificate
     table = CertificateTable
     template_name = "adestis_netbox_certificate_management/certificate_cluster.html"
-    actions = {
-        'add': {'add'},
-        'export': {'view'},
-        'bulk_import': {'add'},
-        'bulk_edit': {'change'},
-        
-    }
+    actions = actions(AddObject, BulkExport, BulkImport, BulkEdit)
 
     tab = ViewTab(
         label=_('Certificates'),
@@ -646,13 +627,7 @@ class CertificateAffectedClusterGroupView(generic.ObjectChildrenView):
         badge=lambda obj: obj.cluster_group.count(),
         weight=600
     )
-    actions = {
-        'add': {'add'},
-        'export': {'view'},
-        'bulk_import': {'add'},
-        'bulk_edit': {'change'},
-        'bulk_remove_cluster_group': {'change'},
-    }
+    actions = actions(AddObject, BulkExport, BulkImport, BulkEdit, BulkRemoveClusterGroup)
 
     def get_children(self, request, parent):
         return ClusterGroup.objects.restrict(request.user, 'view').filter(certificate=parent)
@@ -663,13 +638,7 @@ class ClusterGroupAffectedCertificateView(generic.ObjectChildrenView):
     child_model= Certificate
     table = CertificateTable
     template_name = "adestis_netbox_certificate_management/certificate_cluster_group.html"
-    actions = {
-        'add': {'add'},
-        'export': {'view'},
-        'bulk_import': {'add'},
-        'bulk_edit': {'change'},
-        'bulk_remove_cluster_group': {'change'},
-    }
+    actions = actions(AddObject, BulkExport, BulkImport, BulkEdit, BulkRemoveClusterGroup)
 
     tab = ViewTab(
         label=_('Certificates'),
@@ -769,13 +738,7 @@ class CertificateAffectedVirtualMachineView(generic.ObjectChildrenView):
     child_model= VirtualMachine
     table = VirtualMachineTableCertificate
     template_name = "adestis_netbox_certificate_management/virtual_machine.html"
-    actions = {
-        'add': {'add'},
-        'export': {'view'},
-        'bulk_import': {'add'},
-        'bulk_edit': {'change'},
-        'bulk_remove_virtual_machine': {'change'},
-    }
+    actions = actions(AddObject, BulkExport, BulkImport, BulkEdit, BulkRemoveVirtualMachine)
 
     tab = ViewTab(
         label=_('Virtual Machines'),
@@ -792,13 +755,7 @@ class VirtualMachineAffectedCertificateView(generic.ObjectChildrenView):
     child_model= Certificate
     table = CertificateTable
     template_name = "adestis_netbox_certificate_management/certificate_virtual_machine.html"
-    actions = {
-        'add': {'add'},
-        'export': {'view'},
-        'bulk_import': {'add'},
-        'bulk_edit': {'change'},
-        'bulk_remove_virtual_machine': {'change'},
-    }
+    actions = actions(AddObject, BulkExport, BulkImport, BulkEdit, BulkRemoveVirtualMachine)
 
     tab = ViewTab(
         label=_('Certificates'),
@@ -898,13 +855,7 @@ class CertificateAffectedContactView(generic.ObjectChildrenView):
     child_model= Contact
     table = ContactTableCertificate
     template_name = "adestis_netbox_certificate_management/contact.html"
-    actions = {
-        'add': {'add'},
-        'export': {'view'},
-        'bulk_import': {'add'},
-        'bulk_edit': {'change'},
-        'bulk_remove_contact': {'change'},
-    }
+    actions = actions(AddObject, BulkExport, BulkImport, BulkEdit, BulkRemoveContact)
 
     tab = ViewTab(
         label=_('Contacts'),
@@ -921,13 +872,7 @@ class ContactAffectedCertificateView(generic.ObjectChildrenView):
     child_model= Certificate
     table = CertificateTable
     template_name = "adestis_netbox_certificate_management/certificate_contact.html"
-    actions = {
-        'add': {'add'},
-        'export': {'view'},
-        'bulk_import': {'add'},
-        'bulk_edit': {'change'},
-        'bulk_remove_certificate': {'change'},
-    }
+    actions = actions(AddObject, BulkExport, BulkImport, BulkEdit, BulkRemoveCertificate)
 
     tab = ViewTab(
         label=_('Certificates'),
@@ -1027,13 +972,7 @@ class TenantAffectedCertificateView(generic.ObjectChildrenView):
     child_model= Certificate
     table = CertificateTable
     template_name = "adestis_netbox_certificate_management/certificate_tenant.html"
-    actions = {
-        'add': {'add'},
-        'export': {'view'},
-        'bulk_import': {'add'},
-        'bulk_edit': {'change'},
-        'bulk_remove_tenant': {'change'},
-    }
+    actions = actions(AddObject, BulkExport, BulkImport, BulkEdit, BulkRemoveTenant)
 
     tab = ViewTab(
         label=_('Certificates'),
